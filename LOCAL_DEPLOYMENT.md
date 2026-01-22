@@ -182,6 +182,39 @@ python3 analyze_trader.py 0x...
 2. The Graph 子图（备用）
 3. 演示模式（离线）
 
+### 🔧 curl 后端技术
+
+**重要特性**: 工具内置了 curl HTTP 客户端，可以在 Python DNS 受限的环境中工作。
+
+**工作原理**:
+- 当 Python 的 `socket` 模块无法解析域名时
+- 自动使用系统的 `curl` 命令发送 HTTP 请求
+- 完全兼容 requests 库的 API
+- 透明切换，无需修改代码
+
+**适用场景**:
+- Docker 容器环境
+- 企业防火墙/代理环境
+- 沙箱环境
+- Python DNS 被限制但 curl 可用的环境
+
+**技术细节**:
+- `curl_http_client.py` - curl 包装器模块
+- 支持 GET/POST 请求
+- JSON 数据处理
+- Session 和请求头管理
+- 异常处理兼容 requests
+- SSL 证书验证控制
+
+**验证 curl 后端**:
+```bash
+# 测试 curl 客户端
+python3 curl_http_client.py
+
+# 测试 API 连接（会自动使用 curl）
+python3 test_api.py
+```
+
 ## 🐛 故障排查
 
 ### 问题：依赖安装失败
@@ -201,6 +234,26 @@ pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 2. 使用演示模式：`--demo`
 3. 尝试不同数据源：`--api subgraph`
 4. 检查代理设置
+5. 工具会自动使用 curl 后端（如果 Python DNS 失败）
+
+### 问题：Python DNS 解析失败
+
+**症状**:
+```
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+```
+
+**解决方案**:
+工具已内置 curl 后端自动处理此问题！
+
+1. **自动切换**: 工具会自动使用 curl 发送请求
+2. **手动测试**: 运行 `curl https://gamma-api.polymarket.com` 验证 curl 可用
+3. **如果 curl 也不可用**: 使用 `--demo` 模式
+
+**技术说明**:
+- 这种情况常见于 Docker 容器或受限网络环境
+- curl 使用系统 DNS，而 Python 使用 socket 库
+- 工具会透明地切换到 curl 后端，无需手动干预
 
 ### 问题：Python 版本过低
 
