@@ -1,7 +1,13 @@
 """
 Polymarket data fetcher using The Graph subgraph
 """
-import requests
+# Use curl backend for environments with DNS restrictions
+try:
+    from curl_http_client import use_curl_backend
+    requests = use_curl_backend()
+except ImportError:
+    import requests
+
 from typing import Dict, List, Optional
 
 

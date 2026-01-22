@@ -3,7 +3,13 @@
 Polymarket API 连接测试脚本
 用于测试不同的 API 端点是否可用
 """
-import requests
+# Use curl backend for environments with DNS restrictions
+try:
+    from curl_http_client import use_curl_backend
+    requests = use_curl_backend()
+except ImportError:
+    import requests
+
 import sys
 from typing import Dict, Optional
 
